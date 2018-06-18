@@ -8,8 +8,9 @@ import (
 type Worker func(Item) Ack
 
 type Queue struct {
-	mux     sync.Mutex
+	mux     *sync.Mutex
 	buf     []*Item
+	lineup  map[string]*sync.Mutex
 	workers map[string][]Worker
 	active  bool
 	ticker  *time.Ticker
@@ -29,7 +30,9 @@ type Item struct {
 
 func New() *Queue {
 	return &Queue{
+		mux:     &sync.Mutex{},
 		workers: make(map[string][]Worker),
+		lineup:  make(map[string]*sync.Mutex),
 		Tick:    time.Millisecond * 100,
 	}
 }
@@ -96,6 +99,14 @@ func (q *Queue) Do(item *Item) {
 	var wg sync.WaitGroup
 	var acks []Ack
 
+	mux, ok := q.lineup[item.Topic]
+	if !ok {
+		mux = &sync.Mutex{}
+		q.lineup[item.Topic] = mux
+	}
+
+	mux.Lock()
+
 	if workers, ok := q.workers[item.Topic]; ok {
 		for _, worker := range workers {
 			wg.Add(1)
@@ -108,4 +119,5 @@ func (q *Queue) Do(item *Item) {
 
 	wg.Wait()
 	item.ch <- acks
+	mux.Unlock()
 }
