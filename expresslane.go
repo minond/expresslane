@@ -5,20 +5,26 @@ import (
 	"time"
 )
 
-type Worker func(Item) error
+type Worker func(Item) Ack
 
 type Queue struct {
 	mux     sync.Mutex
-	buf     []Item
+	buf     []*Item
 	workers map[string][]Worker
 	active  bool
 	ticker  *time.Ticker
 	Tick    time.Duration
 }
 
+type Ack struct {
+	Data interface{}
+	Err  error
+}
+
 type Item struct {
 	Topic string
 	Data  interface{}
+	ch    chan []Ack
 }
 
 func New() *Queue {
@@ -28,11 +34,12 @@ func New() *Queue {
 	}
 }
 
-func (q *Queue) Push(item Item) *Queue {
+func (q *Queue) Push(item Item) chan []Ack {
 	q.mux.Lock()
 	defer q.mux.Unlock()
-	q.buf = append(q.buf, item)
-	return q
+	q.buf = append(q.buf, &item)
+	item.ch = make(chan []Ack, 1)
+	return item.ch
 }
 
 func (q *Queue) Register(topic string, worker Worker) *Queue {
@@ -81,14 +88,24 @@ func (q *Queue) AssumeWork() {
 	q.mux.Lock()
 	item, rest := q.buf[0], q.buf[1:]
 	q.buf = rest
-	q.Do(item)
+	go q.Do(item)
 	q.mux.Unlock()
 }
 
-func (q *Queue) Do(item Item) {
+func (q *Queue) Do(item *Item) {
+	var wg sync.WaitGroup
+	var acks []Ack
+
 	if workers, ok := q.workers[item.Topic]; ok {
 		for _, worker := range workers {
-			go worker(item)
+			wg.Add(1)
+			go func(worker Worker) {
+				defer wg.Done()
+				acks = append(acks, worker(*item))
+			}(worker)
 		}
 	}
+
+	wg.Wait()
+	item.ch <- acks
 }
