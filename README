@@ -1,0 +1,8 @@
+Express Lane is an in-memory job queue. And much like the express lane at your
+grocery store, it's meant for just a few items at a time.
+                                          __
+  ___  _  ______  ________  __________   / /___ _____  ___
+ / _ \| |/_/ __ \/ ___/ _ \/ ___/ ___/  / / __ `/ __ \/ _ \
+/  ___>  </ /_/ / /  /  __(__  (__  )  / / /_/ / / / /  __/
+\___/_/|_/ .___/_/   \___/____/____/  /_/\__,_/_/ /_/\___/
+        /_/
