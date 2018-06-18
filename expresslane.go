@@ -83,8 +83,11 @@ func (q *Queue) Run() *Queue {
 func (q *Queue) Stop() {
 	q.mux.Lock()
 	defer q.mux.Unlock()
-	q.ticker.Stop()
 	q.active = false
+
+	if q.ticker != nil {
+		q.ticker.Stop()
+	}
 }
 
 func (q *Queue) AssumeWork() {
