@@ -12,7 +12,7 @@ import (
 func main() {
 	log.Println("this example will continue to run forever")
 	time.Sleep(time.Second)
-	q := el.New()
+	q := el.New().Run()
 
 	q.Register("seconds", func(item el.Item) el.Ack {
 		log.Printf("topic '%s', data: %v\n", item.Topic, item.Data)
@@ -38,6 +38,5 @@ func main() {
 		}
 	}()
 
-	go q.Run()
 	runtime.Goexit()
 }
