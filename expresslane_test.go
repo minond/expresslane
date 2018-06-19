@@ -25,8 +25,8 @@ func TestWorkIsPushedToBackOfList(t *testing.T) {
 	q.Start()
 	defer q.Stop()
 
-	q.Push(Item{Data: 1})
-	q.Push(Item{Data: 2})
+	q.Push("num", 1)
+	q.Push("num", 2)
 
 	eq("expecting q.buf[0].Data to be 1", t, 1, q.buf[0].Data)
 	eq("expecting q.buf[1].Data to be 2", t, 2, q.buf[1].Data)
@@ -37,7 +37,7 @@ func TestWorkCanBeDoneOnAnUnregisteredTopic(t *testing.T) {
 	q.Start()
 	defer q.Stop()
 
-	ch := q.Push(Item{Topic: "new", Data: 2})
+	ch := q.Push("new", 2)
 	acks := <-ch
 
 	eq("expecting to get back 0 acks", t, 0, len(acks))
@@ -73,7 +73,7 @@ func TestRunningABlockingTask(t *testing.T) {
 		return Ack{Data: "hi"}
 	})
 
-	ch := q.Push(Item{Topic: "task"})
+	ch := q.Push("task", nil)
 	acks := <-ch
 
 	eq("expecting len(acks) to be 1", t, 1, len(acks))

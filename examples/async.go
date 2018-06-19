@@ -27,14 +27,14 @@ func main() {
 	go func() {
 		timer := time.NewTicker(time.Millisecond * 100)
 		for x := range timer.C {
-			q.Push(el.Item{Topic: "milliseconds", Data: x})
+			q.Push("milliseconds", x)
 		}
 	}()
 
 	go func() {
 		timer := time.NewTicker(time.Second)
 		for x := range timer.C {
-			q.Push(el.Item{Topic: "seconds", Data: x})
+			q.Push("seconds", x)
 		}
 	}()
 

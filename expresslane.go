@@ -37,7 +37,11 @@ func New() *Queue {
 	}
 }
 
-func (q *Queue) Push(item Item) chan []Ack {
+func (q *Queue) Push(topic string, data interface{}) chan []Ack {
+	return q.PushItem(Item{Topic: topic, Data: data})
+}
+
+func (q *Queue) PushItem(item Item) chan []Ack {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 	q.buf = append(q.buf, &item)

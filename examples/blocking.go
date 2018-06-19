@@ -26,8 +26,8 @@ func main() {
 		timer := time.NewTicker(time.Millisecond * 100)
 	dowork:
 		for x := range timer.C {
-			ch1 := q.Push(el.Item{Topic: "milliseconds", Data: x})
-			ch2 := q.Push(el.Item{Topic: "milliseconds", Data: x})
+			ch1 := q.Push("milliseconds", x)
+			ch2 := q.Push("milliseconds", x)
 
 			op1, op2 := true, true
 
