@@ -52,3 +52,15 @@ func TestRegisteringWorkers(t *testing.T) {
 	eq(`expecting len(q.workers["anything"]) to be 2`, t, 2, len(q.workers["anything"]))
 	eq(`expecting len(q.workers["nothing"]) to be 1`, t, 1, len(q.workers["nothing"]))
 }
+
+func TestCannotStartTwice(t *testing.T) {
+	defer func() {
+		if err := recover(); err == nil {
+			t.Fatal("expecting a panic")
+		}
+	}()
+
+	q := New()
+	q.Run()
+	q.Run()
+}
