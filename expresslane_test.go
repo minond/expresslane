@@ -14,7 +14,7 @@ func eq(msg string, t *testing.T, x, y interface{}) {
 
 func TestAQueueCanBeStopped(t *testing.T) {
 	q := New()
-	q.Run()
+	q.Start()
 	eq("expecting q.active to be true", t, true, q.active)
 	q.Stop()
 	eq("expecting q.active to be false", t, false, q.active)
@@ -22,7 +22,7 @@ func TestAQueueCanBeStopped(t *testing.T) {
 
 func TestWorkIsPushedToBackOfList(t *testing.T) {
 	q := New()
-	q.Run()
+	q.Start()
 	defer q.Stop()
 
 	q.Push(Item{Data: 1})
@@ -34,7 +34,7 @@ func TestWorkIsPushedToBackOfList(t *testing.T) {
 
 func TestWorkCanBeDoneOnAnUnregisteredTopic(t *testing.T) {
 	q := New()
-	q.Run()
+	q.Start()
 	defer q.Stop()
 
 	ch := q.Push(Item{Topic: "new", Data: 2})
@@ -62,12 +62,12 @@ func TestCannotStartTwice(t *testing.T) {
 	}()
 
 	q := New()
-	q.Run()
-	q.Run()
+	q.Start()
+	q.Start()
 }
 
-func TestFunction(t *testing.T) {
-	q := New().Run()
+func TestRunningABlockingTask(t *testing.T) {
+	q := New().Start()
 	q.Register("task", func(i Item) Ack {
 		time.Sleep(time.Millisecond)
 		return Ack{Data: "hi"}

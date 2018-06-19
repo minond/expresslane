@@ -58,7 +58,7 @@ func (q *Queue) Register(topic string, worker Worker) *Queue {
 	return q
 }
 
-func (q *Queue) Run() *Queue {
+func (q *Queue) Start() *Queue {
 	q.mux.Lock()
 
 	if q.active {

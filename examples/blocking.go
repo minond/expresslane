@@ -13,7 +13,7 @@ import (
 func main() {
 	log.Println("this example will continue to run forever")
 	time.Sleep(time.Second)
-	q := el.New().Run()
+	q := el.New().Start()
 
 	q.Register("milliseconds", func(item el.Item) el.Ack {
 		log.Println("worker is sleeping....")
