@@ -3,6 +3,7 @@ package expresslane
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func eq(msg string, t *testing.T, x, y interface{}) {
@@ -63,4 +64,18 @@ func TestCannotStartTwice(t *testing.T) {
 	q := New()
 	q.Run()
 	q.Run()
+}
+
+func TestFunction(t *testing.T) {
+	q := New().Run()
+	q.Register("task", func(i Item) Ack {
+		time.Sleep(time.Millisecond)
+		return Ack{Data: "hi"}
+	})
+
+	ch := q.Push(Item{Topic: "task"})
+	acks := <-ch
+
+	eq("expecting len(acks) to be 1", t, 1, len(acks))
+	eq(`expecting acks[0].Data to be "hi"`, t, "hi", acks[0].Data)
 }
