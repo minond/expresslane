@@ -41,3 +41,14 @@ func TestWorkCanBeDoneOnAnUnregisteredTopic(t *testing.T) {
 
 	eq("expecting to get back 0 acks", t, 0, len(acks))
 }
+
+func TestRegisteringWorkers(t *testing.T) {
+	q := New()
+
+	q.Register("anything", func(i Item) Ack { return Ack{} })
+	q.Register("anything", func(i Item) Ack { return Ack{} })
+	q.Register("nothing", func(i Item) Ack { return Ack{} })
+
+	eq(`expecting len(q.workers["anything"]) to be 2`, t, 2, len(q.workers["anything"]))
+	eq(`expecting len(q.workers["nothing"]) to be 1`, t, 1, len(q.workers["nothing"]))
+}
