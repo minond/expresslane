@@ -1,28 +1,24 @@
-// +build ignore
-
-package main
+package expresslane
 
 import (
 	"log"
 	"runtime"
 	"time"
-
-	el "github.com/minond/expresslane"
 )
 
-func main() {
+func Example_async() {
 	log.Println("this example will continue to run forever")
 	time.Sleep(time.Second)
-	q := el.New().Start()
+	q := New().Start()
 
-	q.Register("seconds", func(item el.Item) el.Ack {
+	q.Register("seconds", func(item Item) Ack {
 		log.Printf("topic '%s', data: %v\n", item.Topic, item.Data)
-		return el.Ack{}
+		return Ack{}
 	})
 
-	q.Register("milliseconds", func(item el.Item) el.Ack {
+	q.Register("milliseconds", func(item Item) Ack {
 		log.Printf("topic '%s', data: %v\n", item.Topic, item.Data)
-		return el.Ack{}
+		return Ack{}
 	})
 
 	go func() {
