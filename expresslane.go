@@ -5,8 +5,11 @@ import (
 	"time"
 )
 
+// Worker is a function that is registered to handle certain work items.
 type Worker func(Item) Ack
 
+// Queue represents a stand along queue. Alter the Tick value to modify the
+// interval in which new work is checked for.
 type Queue struct {
 	mux     *sync.Mutex
 	buf     []*Item
@@ -17,17 +20,20 @@ type Queue struct {
 	Tick    time.Duration
 }
 
+// Ack is a response from a worker. It includes the return value and an error.
 type Ack struct {
 	Data interface{}
 	Err  error
 }
 
+// Item is an item of work sent to a worker.
 type Item struct {
 	Topic string
 	Data  interface{}
 	ch    chan []Ack
 }
 
+// New creates a new queue that is not started yet.
 func New() *Queue {
 	return &Queue{
 		mux:     &sync.Mutex{},
@@ -37,6 +43,8 @@ func New() *Queue {
 	}
 }
 
+// Push queues work to be done by a worker and returns a channel used to
+// communicate back to the main thread when the work is complete.
 func (q *Queue) Push(topic string, data interface{}) chan []Ack {
 	item := Item{Topic: topic, Data: data}
 	q.mux.Lock()
@@ -46,6 +54,7 @@ func (q *Queue) Push(topic string, data interface{}) chan []Ack {
 	return item.ch
 }
 
+// Register assigns a worker to a topic
 func (q *Queue) Register(topic string, worker Worker) *Queue {
 	q.mux.Lock()
 	defer q.mux.Unlock()
@@ -59,6 +68,8 @@ func (q *Queue) Register(topic string, worker Worker) *Queue {
 	return q
 }
 
+// Start makes the queue available for work. Work items are check for in a
+// timer.
 func (q *Queue) Start() *Queue {
 	q.mux.Lock()
 
@@ -81,6 +92,8 @@ func (q *Queue) Start() *Queue {
 	return q
 }
 
+// Stop prevents a queue from checking for more work until Start is called
+// again.
 func (q *Queue) Stop() {
 	q.mux.Lock()
 	defer q.mux.Unlock()
