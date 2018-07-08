@@ -1,3 +1,9 @@
+// Package expresslane provides an in memory work queue that uses channels for
+// communication between workers and the main thread when needed.
+//
+// The name comes from the the express lane in your local grocery store and not
+// the one in the freeway. And much like the express lane at your grocery
+// store, it's meant for just a few items at a time.
 package expresslane
 
 import (
