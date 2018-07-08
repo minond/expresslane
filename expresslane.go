@@ -38,10 +38,7 @@ func New() *Queue {
 }
 
 func (q *Queue) Push(topic string, data interface{}) chan []Ack {
-	return q.PushItem(Item{Topic: topic, Data: data})
-}
-
-func (q *Queue) PushItem(item Item) chan []Ack {
+	item := Item{Topic: topic, Data: data}
 	q.mux.Lock()
 	defer q.mux.Unlock()
 	q.buf = append(q.buf, &item)
@@ -76,7 +73,7 @@ func (q *Queue) Start() *Queue {
 	go func() {
 		for range q.ticker.C {
 			if len(q.buf) > 0 && q.active {
-				q.AssumeWork()
+				q.work()
 			}
 		}
 	}()
@@ -94,15 +91,15 @@ func (q *Queue) Stop() {
 	}
 }
 
-func (q *Queue) AssumeWork() {
+func (q *Queue) work() {
 	q.mux.Lock()
 	item, rest := q.buf[0], q.buf[1:]
 	q.buf = rest
-	go q.Do(item)
+	go q.do(item)
 	q.mux.Unlock()
 }
 
-func (q *Queue) Do(item *Item) {
+func (q *Queue) do(item *Item) {
 	var wg sync.WaitGroup
 	var acks []Ack
 
