@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Example() {
+func Example_blocking() {
 	log.Println("this example will continue to run forever")
 	time.Sleep(time.Second)
 	q := New().Start()
